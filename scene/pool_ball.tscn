@@ -1,0 +1,525 @@
+[gd_scene format=3 uid="uid://30iuua5fpffd"]
+
+[ext_resource type="Script" uid="uid://c1jhcg6nqrirp" path="res://scripts/PoolBall.cs" id="1_5gn48"]
+[ext_resource type="Texture2D" uid="uid://brl3rle3lmypo" path="res://assets/Maingame/water/0.png" id="2_3q56e"]
+[ext_resource type="Texture2D" uid="uid://ljryebg470wf" path="res://assets/Maingame/water/1.png" id="3_ukgag"]
+[ext_resource type="Texture2D" uid="uid://b8k1dgk36aa0e" path="res://assets/Maingame/water/2.png" id="4_dd3kc"]
+[ext_resource type="Texture2D" uid="uid://ch673w7csqld5" path="res://assets/Maingame/water/3.png" id="5_x4e6u"]
+[ext_resource type="Texture2D" uid="uid://bqt7i5br73lxm" path="res://assets/Maingame/water/4.png" id="6_vnsci"]
+[ext_resource type="Texture2D" uid="uid://bcjbidqs2yvu8" path="res://assets/Maingame/water/5.png" id="7_m2af4"]
+[ext_resource type="Texture2D" uid="uid://bdqurt0kok6re" path="res://assets/Maingame/water/6.png" id="8_0jdkk"]
+[ext_resource type="Texture2D" uid="uid://bb82ugfmvp7kd" path="res://assets/Maingame/water/7.png" id="9_wpqo3"]
+[ext_resource type="Texture2D" uid="uid://c34gs4elyk6u1" path="res://assets/Maingame/light/item_6.png" id="10_3q56e"]
+[ext_resource type="Texture2D" uid="uid://b1neow5vk6fix" path="res://assets/Maingame/wind/0.png" id="10_r568i"]
+[ext_resource type="Texture2D" uid="uid://da3kifle5mj7f" path="res://assets/Maingame/wind/1.png" id="11_2yqpx"]
+[ext_resource type="Texture2D" uid="uid://cjsjtq258dkit" path="res://assets/Maingame/light/item_7.png" id="11_ukgag"]
+[ext_resource type="Texture2D" uid="uid://b62m8ejsc3poj" path="res://assets/Maingame/light/item_8.png" id="12_dd3kc"]
+[ext_resource type="Texture2D" uid="uid://c0r8q5yuex275" path="res://assets/Maingame/wind/2.png" id="12_qm4xa"]
+[ext_resource type="Texture2D" uid="uid://c58spkpq7ujqr" path="res://assets/Maingame/wind/3.png" id="13_2jmqo"]
+[ext_resource type="Texture2D" uid="uid://cl6xsogjvt3my" path="res://assets/Maingame/light/item_9.png" id="13_x4e6u"]
+[ext_resource type="Texture2D" uid="uid://dshxpii1754sh" path="res://assets/Maingame/wind/4.png" id="14_vln1w"]
+[ext_resource type="Texture2D" uid="uid://c6a8j3r401uvu" path="res://assets/Maingame/light/item_10.png" id="14_vnsci"]
+[ext_resource type="Texture2D" uid="uid://dejg2a5yd1lw" path="res://assets/Maingame/wind/5.png" id="15_3yp6t"]
+[ext_resource type="Texture2D" uid="uid://5jshunlt0tbw" path="res://assets/Maingame/light/item_11.png" id="15_m2af4"]
+[ext_resource type="Texture2D" uid="uid://dnbf3u8odi8dg" path="res://assets/Maingame/light/item_12.png" id="16_0jdkk"]
+[ext_resource type="Texture2D" uid="uid://bjktsp6jgq74c" path="res://assets/Maingame/wind/6.png" id="16_gmmx1"]
+[ext_resource type="Texture2D" uid="uid://df0mvlhefndts" path="res://assets/Maingame/wind/7.png" id="17_dqjse"]
+[ext_resource type="Texture2D" uid="uid://dxbfr1xcnuss1" path="res://assets/Maingame/light/item_13.png" id="17_wpqo3"]
+[ext_resource type="Texture2D" uid="uid://drkorasmljmol" path="res://assets/Maingame/meteor/0.png" id="18_3yp6t"]
+[ext_resource type="Texture2D" uid="uid://dl4prx0xejxk4" path="res://assets/Maingame/chery/item_1.png" id="18_vnsci"]
+[ext_resource type="Texture2D" uid="uid://dbuadwtx0s15v" path="res://assets/Maingame/meteor/1.png" id="19_gmmx1"]
+[ext_resource type="Texture2D" uid="uid://dnrc6hin1sl1q" path="res://assets/Maingame/chery/item_3.png" id="19_m2af4"]
+[ext_resource type="Texture2D" uid="uid://mwwn7ou6vkla" path="res://assets/Maingame/chery/item_5.png" id="20_0jdkk"]
+[ext_resource type="Texture2D" uid="uid://mg7dwkdx2g2r" path="res://assets/Maingame/meteor/2.png" id="20_dqjse"]
+[ext_resource type="Texture2D" uid="uid://dpgne8lavhj8f" path="res://assets/Maingame/meteor/4.png" id="21_0r1p1"]
+[ext_resource type="Texture2D" uid="uid://dpqexf4njlwlc" path="res://assets/Maingame/poison/sprite_0.png" id="21_j5eoe"]
+[ext_resource type="Texture2D" uid="uid://c17l1bcxkrf4q" path="res://assets/Maingame/chery/item_6.png" id="21_wpqo3"]
+[ext_resource type="Texture2D" uid="uid://bbigpyqyrs264" path="res://assets/Maingame/meteor/5.png" id="22_0djty"]
+[ext_resource type="Texture2D" uid="uid://cbiun8eroxd7s" path="res://assets/Maingame/chery/item_7.png" id="22_0hrb2"]
+[ext_resource type="Texture2D" uid="uid://b4ojjesava4kj" path="res://assets/Maingame/poison/sprite_1.png" id="22_n4e6x"]
+[ext_resource type="Texture2D" uid="uid://cs62qdk42xw5a" path="res://assets/Maingame/poison/sprite_2.png" id="23_kq5gb"]
+[ext_resource type="Texture2D" uid="uid://c46iec3couy1m" path="res://assets/Maingame/chery/item_8.png" id="23_sq5lt"]
+[ext_resource type="Texture2D" uid="uid://dgmaq3qet3wri" path="res://assets/Maingame/poison/sprite_3.png" id="24_5lm74"]
+[ext_resource type="Texture2D" uid="uid://b52goyw681ll8" path="res://assets/Maingame/chery/item_11.png" id="24_21jud"]
+[ext_resource type="Texture2D" uid="uid://bhsmm6xlm5ntp" path="res://assets/Maingame/chery/item_12.png" id="25_1ar4i"]
+[ext_resource type="Texture2D" uid="uid://dmg6rkqb0o6ol" path="res://assets/Maingame/poison/sprite_4.png" id="25_7byxk"]
+[ext_resource type="Texture2D" uid="uid://cvluib5onn52x" path="res://assets/Maingame/fire/sprite_0.png" id="26_04inp"]
+[ext_resource type="Texture2D" uid="uid://crlmi6mehr5vb" path="res://assets/Maingame/chery/item_13.png" id="26_r5c14"]
+[ext_resource type="Texture2D" uid="uid://dcu3nqs1hfck0" path="res://assets/Maingame/fire/sprite_1.png" id="27_j5eoe"]
+[ext_resource type="Texture2D" uid="uid://cyhhh4e6ykkwj" path="res://assets/Maingame/fire/sprite_2.png" id="28_n4e6x"]
+[ext_resource type="Texture2D" uid="uid://35jwtbvy66qp" path="res://assets/Maingame/fire/sprite_3.png" id="29_kq5gb"]
+[ext_resource type="Texture2D" uid="uid://4cysb57oo1p4" path="res://assets/Maingame/fire/sprite_4.png" id="30_5lm74"]
+[ext_resource type="Texture2D" uid="uid://cqxkwq2g878vc" path="res://assets/Maingame/fire/sprite_5.png" id="31_7byxk"]
+[ext_resource type="Texture2D" uid="uid://b57gd5delekxf" path="res://assets/Maingame/stone/sprite_0.png" id="32_s1b8g"]
+[ext_resource type="Texture2D" uid="uid://b2m7kif7d7eep" path="res://assets/Maingame/stone/sprite_1.png" id="33_jy8js"]
+[ext_resource type="Texture2D" uid="uid://dpotohoc54hxq" path="res://assets/Maingame/stone/sprite_2.png" id="34_uw7a8"]
+[ext_resource type="Texture2D" uid="uid://8dqucdigiyyn" path="res://assets/Maingame/stone/sprite_3.png" id="35_3q56e"]
+[ext_resource type="Texture2D" uid="uid://ddj3hw2hjtvnj" path="res://assets/Maingame/wisp/sprite_0.png" id="36_s1b8g"]
+[ext_resource type="Texture2D" uid="uid://cgdca6e3k4tsm" path="res://assets/Maingame/wisp/sprite_1.png" id="37_jy8js"]
+[ext_resource type="Texture2D" uid="uid://bn6v4uidvmmbe" path="res://assets/Maingame/wisp/sprite_2.png" id="38_uw7a8"]
+[ext_resource type="Texture2D" uid="uid://bcbtacaandqxy" path="res://assets/Maingame/wisp/sprite_3.png" id="39_3q56e"]
+[ext_resource type="Texture2D" uid="uid://m7kg5mxfwb1f" path="res://assets/Maingame/legion/7.png" id="39_s1b8g"]
+[ext_resource type="Texture2D" uid="uid://csyw18fcoq1ng" path="res://assets/Maingame/legion/2.png" id="40_jy8js"]
+[ext_resource type="Texture2D" uid="uid://vkyigs42yhva" path="res://assets/Maingame/wisp/sprite_4.png" id="40_ukgag"]
+[ext_resource type="Texture2D" uid="uid://cnjbmjqcv0g8i" path="res://assets/Maingame/wisp/sprite_5.png" id="41_dd3kc"]
+[ext_resource type="Texture2D" uid="uid://cbmauji8eh56h" path="res://assets/Maingame/legion/5.png" id="41_uw7a8"]
+[ext_resource type="Texture2D" uid="uid://bprda6psvg8rt" path="res://assets/Maingame/bomb/sprite_0.png" id="42_3q56e"]
+[ext_resource type="Texture2D" uid="uid://bw8atxvnpvgio" path="res://assets/Maingame/bomb/sprite_1.png" id="43_ukgag"]
+[ext_resource type="Texture2D" uid="uid://bmpl5eg47n83" path="res://assets/Maingame/bomb/sprite_2.png" id="44_dd3kc"]
+[ext_resource type="Texture2D" uid="uid://bg8ahqquee2h6" path="res://assets/Maingame/bomb/sprite_3.png" id="45_x4e6u"]
+[ext_resource type="Texture2D" uid="uid://dnjq7krcgvyvm" path="res://assets/Maingame/bomb/sprite_4.png" id="46_vnsci"]
+[ext_resource type="Texture2D" uid="uid://dlpxmb1wjg5yy" path="res://assets/Maingame/blackhole/sprite_0.png" id="47_m2af4"]
+[ext_resource type="Texture2D" uid="uid://8au8rf7waw50" path="res://assets/Maingame/blackhole/sprite_1.png" id="48_0jdkk"]
+[ext_resource type="Texture2D" uid="uid://ccqyvtgk4rf3s" path="res://assets/Maingame/blackhole/sprite_2.png" id="49_wpqo3"]
+[ext_resource type="Texture2D" uid="uid://mqbwr7ryql0e" path="res://assets/Maingame/blackhole/sprite_3.png" id="50_0hrb2"]
+[ext_resource type="Texture2D" uid="uid://dsxp1lr7ufd2d" path="res://assets/Maingame/blackhole/sprite_4.png" id="51_sq5lt"]
+[ext_resource type="Texture2D" uid="uid://b6qyrug77acur" path="res://assets/Maingame/blackhole/sprite_5.png" id="52_21jud"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_4a3de"]
+friction = 0.2
+bounce = 0.9
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_r568i"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_3q56e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_ukgag")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_dd3kc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_x4e6u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_vnsci")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_m2af4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_0jdkk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_wpqo3")
+}],
+"loop": true,
+"name": &"1",
+"speed": 3.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("10_3q56e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_ukgag")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_dd3kc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_x4e6u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_vnsci")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_m2af4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_0jdkk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_wpqo3")
+}],
+"loop": true,
+"name": &"11",
+"speed": 3.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("18_vnsci")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_m2af4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_0jdkk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_wpqo3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_0hrb2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_sq5lt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_21jud")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_1ar4i")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_r5c14")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_21jud")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_1ar4i")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_r5c14")
+}],
+"loop": true,
+"name": &"12",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("21_j5eoe")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_n4e6x")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_kq5gb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_5lm74")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_7byxk")
+}],
+"loop": true,
+"name": &"13",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("26_04inp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_j5eoe")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_n4e6x")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_kq5gb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_5lm74")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_7byxk")
+}],
+"loop": true,
+"name": &"14",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("32_s1b8g")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_jy8js")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_uw7a8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_3q56e")
+}],
+"loop": true,
+"name": &"15",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("36_s1b8g")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_jy8js")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_uw7a8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_3q56e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("40_ukgag")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_dd3kc")
+}],
+"loop": true,
+"name": &"16",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("10_r568i")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_2yqpx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_qm4xa")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_2jmqo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_vln1w")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_3yp6t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_gmmx1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_dqjse")
+}],
+"loop": true,
+"name": &"2",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("18_3yp6t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_gmmx1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_dqjse")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_0r1p1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_0djty")
+}],
+"loop": true,
+"name": &"5",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("39_s1b8g")
+}, {
+"duration": 1.0,
+"texture": ExtResource("40_jy8js")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_uw7a8")
+}],
+"loop": true,
+"name": &"7",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("42_3q56e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("43_ukgag")
+}, {
+"duration": 1.0,
+"texture": ExtResource("44_dd3kc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("45_x4e6u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("46_vnsci")
+}],
+"loop": true,
+"name": &"8",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("47_m2af4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("48_0jdkk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("49_wpqo3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("50_0hrb2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("51_sq5lt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("52_21jud")
+}],
+"loop": true,
+"name": &"9",
+"speed": 7.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"test",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_osyvi"]
+radius = 24.0
+
+[sub_resource type="Curve" id="Curve_5gn48"]
+_data = [Vector2(0.27899686, 1), 0.0, 0.0, 0, 0]
+point_count = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_bg"]
+bg_color = Color(0.15, 0.15, 0.15, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_fill"]
+bg_color = Color(0.2, 0.8, 0.2, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8, 0.8, 0.8, 0)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[node name="PoolBall" type="RigidBody2D" unique_id=788145768 groups=["balls"]]
+input_pickable = true
+physics_material_override = SubResource("PhysicsMaterial_4a3de")
+contact_monitor = true
+max_contacts_reported = 5
+linear_damp = 0.3
+script = ExtResource("1_5gn48")
+
+[node name="animatedBall" type="AnimatedSprite2D" parent="." unique_id=838212984]
+sprite_frames = SubResource("SpriteFrames_r568i")
+animation = &"12"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1582336556]
+shape = SubResource("CircleShape2D_osyvi")
+
+[node name="AimLine" type="Line2D" parent="." unique_id=885423695]
+width = 3.0
+width_curve = SubResource("Curve_5gn48")
+default_color = Color(0.26960242, 0.22347164, 0.67590284, 1)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+antialiased = true
+
+[node name="HealthUI" type="Control" parent="." unique_id=576520133]
+layout_mode = 3
+anchors_preset = 0
+offset_top = -28.0
+offset_bottom = -28.0
+
+[node name="HealthBar" type="ProgressBar" parent="HealthUI" unique_id=1090115795]
+custom_minimum_size = Vector2(24, 4)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -12.0
+offset_top = -2.0
+offset_right = 12.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 18
+theme_override_styles/background = SubResource("StyleBoxFlat_hp_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hp_fill")
+value = 100.0
+show_percentage = false
+
+[node name="HealthLabel" type="Label" parent="HealthUI" unique_id=1170982578]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -18.0
+offset_right = 20.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 14
+text = "100"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ShieldLabel" type="Label" parent="HealthUI" unique_id=83946070]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -32.0
+offset_right = 20.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.2, 0.6, 1, 1)
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AbilityLabel" type="Label" parent="HealthUI" unique_id=83946073]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -46.0
+offset_right = 20.0
+offset_bottom = -32.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.8, 0, 1)
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DamageLabel" type="Label" parent="HealthUI" unique_id=83946071]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_top = 18.0
+offset_right = 25.0
+offset_bottom = 35.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 0.105882, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 16
+text = "10"
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -1,0 +1,161 @@
+[gd_scene format=3 uid="uid://cw3qgjo723fn7"]
+
+[ext_resource type="Texture2D" uid="uid://dvyjrl0u88ohi" path="res://assets/background/BackgroundTable.jpg" id="1_16ixs"]
+[ext_resource type="FontFile" uid="uid://4hftxyogtk5j" path="res://assets/MedievalSharp-Regular.ttf" id="2_hc4tx"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v4cfn"]
+size = Vector2(232, 216)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_16ixs"]
+size = Vector2(233.5, 209.38245)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_BarArkaPlan"]
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_CanYesili"]
+bg_color = Color(0.152941, 0.682353, 0.376471, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8, 0.698039, 0.431373, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[node name="Table" type="Sprite2D" unique_id=1873182915]
+texture = ExtResource("1_16ixs")
+centered = false
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1126430943]
+
+[node name="TopCollision" type="CollisionPolygon2D" parent="StaticBody2D" unique_id=663794729]
+position = Vector2(199, 70)
+polygon = PackedVector2Array(9, 2, 1537, 2, 1537, 338, 1721, 338, 1721, -71, -198, -72, -199, 338, 9, 338)
+
+[node name="BottomCollision" type="CollisionPolygon2D" parent="StaticBody2D" unique_id=1864501616]
+position = Vector2(66, 642)
+polygon = PackedVector2Array(-66, -2, 142, -2, 141, 361, 1670, 358, 1670, 14, 1854, 14, 1853, 437, -64, 445)
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1689225280]
+
+[node name="Radiant" type="CollisionShape2D" parent="Area2D" unique_id=1648278884]
+position = Vector2(84, 524)
+shape = SubResource("RectangleShape2D_v4cfn")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Area2D/Radiant" unique_id=584755020]
+scale = Vector2(1, 1.0316056)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D/Radiant/StaticBody2D" unique_id=1382978655]
+position = Vector2(-2.25, 1.9387207)
+shape = SubResource("RectangleShape2D_16ixs")
+
+[node name="Dire" type="CollisionShape2D" parent="Area2D" unique_id=1468589698]
+position = Vector2(1848, 536)
+shape = SubResource("RectangleShape2D_v4cfn")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Area2D/Dire" unique_id=39497349]
+scale = Vector2(1, 1.64)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D/Dire/StaticBody2D" unique_id=1251485477]
+position = Vector2(-1, -9.1552734e-05)
+shape = SubResource("RectangleShape2D_16ixs")
+
+[node name="RadiantHealth" type="VBoxContainer" parent="." unique_id=1001]
+offset_left = 64.0
+offset_top = 320.0
+offset_right = 204.0
+offset_bottom = 720.0
+theme_override_constants/separation = 15
+alignment = 2
+
+[node name="HealthBar" type="ProgressBar" parent="RadiantHealth" unique_id=1644810414]
+custom_minimum_size = Vector2(24, 200)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/background = SubResource("StyleBoxFlat_BarArkaPlan")
+theme_override_styles/fill = SubResource("StyleBoxFlat_CanYesili")
+value = 100.0
+fill_mode = 3
+show_percentage = false
+
+[node name="LabelContainer" type="Control" parent="RadiantHealth" unique_id=1524396728]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="RadiantHealth/LabelContainer" unique_id=837531509]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -110.0
+offset_top = -120.0
+offset_right = 26.0
+offset_bottom = -90.0
+grow_horizontal = 2
+grow_vertical = 2
+rotation = -1.5708
+scale = Vector2(1.6809492, 1.5110284)
+pivot_offset = Vector2(60, 15)
+theme_override_colors/font_color = Color(1, 0.9, 0.4, 1)
+theme_override_fonts/font = ExtResource("2_hc4tx")
+theme_override_font_sizes/font_size = 18
+text = "RADIANT: 100"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DireHealth" type="VBoxContainer" parent="." unique_id=1002]
+offset_left = 1728.0
+offset_top = 320.0
+offset_right = 1868.0
+offset_bottom = 720.0
+theme_override_constants/separation = 15
+alignment = 2
+
+[node name="HealthBar" type="ProgressBar" parent="DireHealth" unique_id=1199393513]
+custom_minimum_size = Vector2(24, 200)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/background = SubResource("StyleBoxFlat_BarArkaPlan")
+theme_override_styles/fill = SubResource("StyleBoxFlat_CanYesili")
+value = 100.0
+fill_mode = 3
+show_percentage = false
+
+[node name="LabelContainer" type="Control" parent="DireHealth" unique_id=344594038]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="DireHealth/LabelContainer" unique_id=958545508]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 2.0
+offset_top = -176.0
+offset_right = 122.0
+offset_bottom = -146.0
+grow_horizontal = 2
+grow_vertical = 2
+rotation = -1.5708
+scale = Vector2(1.679987, 1.2109321)
+pivot_offset = Vector2(60, 15)
+theme_override_colors/font_color = Color(0.9, 0.2, 0.2, 1)
+theme_override_fonts/font = ExtResource("2_hc4tx")
+theme_override_font_sizes/font_size = 22
+text = "DIRE: 100"
+horizontal_alignment = 1
+vertical_alignment = 1

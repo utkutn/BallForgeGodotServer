@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "EEyf4YLBi00=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\UTKU\\Documents\\BallForgeGodotServer\\BallForgeGodotServer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\UTKU\\.nuget\\packages\\godot.sourcegenerators\\4.7.2\\godot.sourcegenerators.4.7.2.nupkg.sha512",
+    "C:\\Users\\UTKU\\.nuget\\packages\\godotsharp\\4.7.2\\godotsharp.4.7.2.nupkg.sha512",
+    "C:\\Users\\UTKU\\.nuget\\packages\\godotsharpeditor\\4.7.2\\godotsharpeditor.4.7.2.nupkg.sha512"
+  ],
+  "logs": []
+}

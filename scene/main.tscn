@@ -1,0 +1,177 @@
+[gd_scene format=3 uid="uid://ihj7yvt70xxh"]
+
+[ext_resource type="Script" uid="uid://b5sd3xxmwsqry" path="res://scripts/Main.cs" id="1_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://cw3qgjo723fn7" path="res://scene/table.tscn" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://30iuua5fpffd" path="res://scene/pool_ball.tscn" id="2_h2yge"]
+[ext_resource type="FontFile" uid="uid://4hftxyogtk5j" path="res://assets/MedievalSharp-Regular.ttf" id="2_hc4tx"]
+[ext_resource type="PackedScene" uid="uid://xyrf5abhnd4q" path="res://scene/rune.tscn" id="3_p1hux"]
+[ext_resource type="Script" uid="uid://cark4vnohpu7v" path="res://scripts/Server.cs" id="3 srv"]
+[ext_resource type="Script" path="res://scripts/ClientRpcRelay.cs" id="4_relay"]
+[ext_resource type="Texture2D" uid="uid://cd7a47d60kk7p" path="res://assets/background/image-Photoroom.png" id="8_b5f6u"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0, 0, 0, 0.470588)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.784314, 0.666667, 0.431373, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="Main" type="Node" unique_id=1783033816 node_paths=PackedStringArray("_p1NameLabel", "_p1MmrLabel", "_p2NameLabel", "_p2MmrLabel")]
+script = ExtResource("1_0xm2m")
+ballScene = ExtResource("2_h2yge")
+runeScene = ExtResource("3_p1hux")
+_p1NameLabel = NodePath("GameUI/Control/P1_Info/VBox/NameLabel")
+_p1MmrLabel = NodePath("GameUI/Control/P1_Info/VBox/MmrLabel")
+_p2NameLabel = NodePath("GameUI/Control/P2_Info/VBox/NameLabel")
+_p2MmrLabel = NodePath("GameUI/Control/P2_Info/VBox/MmrLabel")
+
+[node name="Table" parent="." unique_id=1893622602 instance=ExtResource("1_ig7tw")]
+
+[node name="Server" type="Node" parent="." unique_id=398983316]
+script = ExtResource("3 srv")
+
+[node name="Client" type="Node" parent="." unique_id=1097398456]
+script = ExtResource("4_relay")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=2001]
+position = Vector2(960, 540)
+anchor_mode = 1
+
+[node name="GameUI" type="CanvasLayer" parent="." unique_id=73831361]
+
+[node name="Control" type="Control" parent="GameUI" unique_id=490368086]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TurnContainer" type="PanelContainer" parent="GameUI/Control" unique_id=252116072]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -64.0
+offset_top = 8.0
+offset_right = 236.0
+offset_bottom = 58.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="TurnLabel" type="Label" parent="GameUI/Control/TurnContainer" unique_id=1157131899]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("2_hc4tx")
+theme_override_font_sizes/font_size = 28
+text = "BEKLENİYOR..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="P1_Info" type="MarginContainer" parent="GameUI/Control" unique_id=1302395989]
+custom_minimum_size = Vector2(220, 150)
+layout_mode = 0
+offset_left = 175.99998
+offset_top = 664.0
+offset_right = 396.0
+offset_bottom = 814.0
+rotation = 1.5707964
+scale = Vector2(1.5, 1.36)
+
+[node name="TextureRect" type="TextureRect" parent="GameUI/Control/P1_Info" unique_id=1829100725]
+layout_mode = 2
+texture = ExtResource("8_b5f6u")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="VBox" type="VBoxContainer" parent="GameUI/Control/P1_Info" unique_id=447054231]
+layout_mode = 2
+alignment = 1
+
+[node name="NameLabel" type="Label" parent="GameUI/Control/P1_Info/VBox" unique_id=245395573]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_hc4tx")
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+
+[node name="MmrLabel" type="Label" parent="GameUI/Control/P1_Info/VBox" unique_id=1149243441]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.784314, 0.666667, 0.431373, 1)
+theme_override_fonts/font = ExtResource("2_hc4tx")
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+
+[node name="RadiantCountLabel" type="Label" parent="GameUI/Control/P1_Info/VBox" unique_id=1512011588]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_hc4tx")
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+
+[node name="P2_Info" type="MarginContainer" parent="GameUI/Control" unique_id=1667089604]
+custom_minimum_size = Vector2(220, 150)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -167.99988
+offset_top = 384.0
+offset_right = 52.000122
+offset_bottom = 534.0
+grow_horizontal = 0
+rotation = -1.5707964
+scale = Vector2(1.36, 1.36)
+
+[node name="TextureRect" type="TextureRect" parent="GameUI/Control/P2_Info" unique_id=1224108240]
+layout_mode = 2
+texture = ExtResource("8_b5f6u")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="VBox" type="VBoxContainer" parent="GameUI/Control/P2_Info" unique_id=706802331]
+layout_mode = 2
+alignment = 1
+
+[node name="NameLabel" type="Label" parent="GameUI/Control/P2_Info/VBox" unique_id=1743791576]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_hc4tx")
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+
+[node name="MmrLabel" type="Label" parent="GameUI/Control/P2_Info/VBox" unique_id=198412748]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.784314, 0.666667, 0.431373, 1)
+theme_override_fonts/font = ExtResource("2_hc4tx")
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+
+[node name="DireCountLabel" type="Label" parent="GameUI/Control/P2_Info/VBox" unique_id=1005002058]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_hc4tx")
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+
+[node name="ScreenEffects" type="CanvasLayer" parent="." unique_id=1003]
+
+[node name="ColorRect" type="ColorRect" parent="ScreenEffects" unique_id=1004]
+modulate = Color(1, 1, 1, 0)
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 0, 0, 1)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ScreenEffects" unique_id=1005]
+unique_name_in_owner = true

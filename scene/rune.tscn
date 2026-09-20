@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://xyrf5abhnd4q"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fjwsw"]
+
+[node name="Area2D" type="Area2D" unique_id=1281017946]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=307939471]
+unique_name_in_owner = true
+z_index = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=985138800]
+unique_name_in_owner = true
+shape = SubResource("CircleShape2D_fjwsw")
