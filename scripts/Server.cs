@@ -765,21 +765,40 @@ public partial class Server : Node
         return (int)ball.GetMeta("team_id") == teamId;
     }
 
-    private bool AnyBallMoving()
+ 
+private bool AnyBallMoving()
+{
+    const float linearSpeedThreshold = 1.0f;
+    const float angularSpeedThreshold = 0.05f;
+
+    foreach (Node n in GetTree().GetNodesInGroup("balls"))
     {
-        const float linearSpeedThreshold = 1.0f;
-        const float angularSpeedThreshold = 0.05f;
+        if (n is not RigidBody2D rb)
+            continue;
 
-        foreach (Node n in GetTree().GetNodesInGroup("balls"))
+        // Uyuyan top hareket etmiyor kabul edilir.
+        if (rb.Sleeping)
+            continue;
+
+        float linearSpeed = rb.LinearVelocity.Length();
+        float angularSpeed = Mathf.Abs(rb.AngularVelocity);
+
+        if (linearSpeed > linearSpeedThreshold ||
+            angularSpeed > angularSpeedThreshold)
         {
-            if (n is RigidBody2D rb &&
-                (rb.LinearVelocity.Length() > linearSpeedThreshold ||
-                 Mathf.Abs(rb.AngularVelocity) > angularSpeedThreshold))
-                return true;
-        }
+            GD.Print(
+                $"[MOVING CHECK] {rb.Name} | " +
+                $"Linear: {linearSpeed:F4} | " +
+                $"Angular: {angularSpeed:F4} | " +
+                $"Sleeping: {rb.Sleeping}"
+            );
 
-        return false;
+            return true;
+        }
     }
+
+    return false;
+}
 
 
     private void ChangeTurn()
