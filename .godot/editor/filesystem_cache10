@@ -1,7 +1,8 @@
 78098b89c88a74ebe8c20117b8754620
-::res://::1789902300
-README.md::TextFile::-1::1789841113::0::1::::<><><>0<>0<><>::
+::res://::1789906055
+README.md::TextFile::-1::1789904068::0::1::::<><><>0<>0<><>::
 server.tscn::PackedScene::-1::1789838042::0::1::::<><><>0<>0<><>::
+Test_Dosyasi.txt::TextFile::-1::1789905406::0::1::::<><><>0<>0<><>::
 ::res://assets/::1789838459
 MedievalSharp-Regular.ttf::FontFile::2050265870586615525::1757524128::1789838459::1::::<><><>0<>0<>5cd36f00937c8533415b0ef9e92ac8a6<>res://.godot/imported/MedievalSharp-Regular.ttf-a7759f3f89d1563ea8804e228ac9ade0.fontdata::
 ::res://assets/background/::1789838460
