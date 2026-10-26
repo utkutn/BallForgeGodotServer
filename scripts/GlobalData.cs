@@ -81,13 +81,10 @@ public class BallItem
     public int health { get; set; }      // API'den gelen HP
     public JsonElement ability { get; set; }
     public string rarity { get; set; }
-    public int quantity { get; set; }
 }
 
 public class UserItemResponse
 {
     public string userItemId { get; set; }
     public int ballTemplateId { get; set; }
-    public int quantity { get; set; }
 }
-
