@@ -49,25 +49,25 @@ polygon = PackedVector2Array(-66, -2, 142, -2, 141, 361, 1670, 358, 1670, 14, 18
 [node name="Area2D" type="Area2D" parent="." unique_id=1689225280]
 
 [node name="Radiant" type="CollisionShape2D" parent="Area2D" unique_id=1648278884]
-position = Vector2(84, 524)
+position = Vector2(84, 530)
 shape = SubResource("RectangleShape2D_v4cfn")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="Area2D/Radiant" unique_id=584755020]
 scale = Vector2(1, 1.0316056)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D/Radiant/StaticBody2D" unique_id=1382978655]
-position = Vector2(-2.25, 1.9387207)
+position = Vector2(-2.25, 0)
 shape = SubResource("RectangleShape2D_16ixs")
 
 [node name="Dire" type="CollisionShape2D" parent="Area2D" unique_id=1468589698]
-position = Vector2(1848, 536)
+position = Vector2(1848, 530)
 shape = SubResource("RectangleShape2D_v4cfn")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="Area2D/Dire" unique_id=39497349]
-scale = Vector2(1, 1.64)
+scale = Vector2(1, 1.0316056)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D/Dire/StaticBody2D" unique_id=1251485477]
-position = Vector2(-1, -9.1552734e-05)
+position = Vector2(-1, 0)
 shape = SubResource("RectangleShape2D_16ixs")
 
 [node name="RadiantHealth" type="VBoxContainer" parent="." unique_id=1001]
