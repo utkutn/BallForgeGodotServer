@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cw3qgjo723fn7"]
 
-[ext_resource type="Texture2D" uid="uid://dvyjrl0u88ohi" path="res://assets/background/BackgroundTable.jpg" id="1_16ixs"]
+[ext_resource type="Texture2D" path="res://assets/background/BackgroundTable_BallForge_v2.png" id="1_16ixs"]
 [ext_resource type="FontFile" uid="uid://4hftxyogtk5j" path="res://assets/MedievalSharp-Regular.ttf" id="2_hc4tx"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_v4cfn"]
