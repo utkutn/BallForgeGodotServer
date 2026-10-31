@@ -23,7 +23,7 @@ public partial class ClientRpcRelay : Node
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void SyncDiceEffect(string ballName, int effectType, int value) { }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void PlayBallExplosion(string ballName) { }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void OnGameOver(int winnerTeamId) { }
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void AuthenticateOnServer(string token, int teamFromClient) { }
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void AuthenticateOnServer(string joinTicket) { }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void RequestSpawnBall(Vector2 pos, Vector2 force, int textureIndex, int teamId, int health, int damage, string abilityJson) { }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void RequestHitBall(string ballName, Vector2 force) { }
 }

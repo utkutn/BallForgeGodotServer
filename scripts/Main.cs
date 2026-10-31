@@ -53,6 +53,8 @@ public partial class Main : Node
         }
     }
 
+    private string _gameServerKey = "";
+
     private void ParseCommandLineArgs(GlobalData gData)
     {
         var args = OS.GetCmdlineArgs();
@@ -63,6 +65,9 @@ public partial class Main : Node
 
             if (arg.StartsWith("--port="))
                 GD.Print("[MAIN] Port Parametresi: " + arg.Split("=")[1]);
+
+            if (arg.StartsWith("--server_key="))
+                _gameServerKey = arg.Substring("--server_key=".Length);
         }
     }
 
@@ -73,9 +78,16 @@ public partial class Main : Node
         httpRequest.RequestCompleted += OnMatchDetailsLoaded;
 
         // Backend URL'niz
-        string url = $"http://host.docker.internal:8080/api/match/check-session?matchId={matchId}";
+        if (string.IsNullOrWhiteSpace(_gameServerKey))
+        {
+            GD.PrintErr("[MAIN] Oyun sunucusu anahtarı yok; güvenli maç verisi alınamadı.");
+            httpRequest.QueueFree();
+            return;
+        }
 
-        httpRequest.Request(url);
+        string url = $"http://host.docker.internal:8080/api/match/server-session?matchId={Uri.EscapeDataString(matchId)}";
+        string[] headers = { "X-Game-Server-Key: " + _gameServerKey };
+        httpRequest.Request(url, headers);
     }
 
     private void OnMatchDetailsLoaded(long result, long responseCode, string[] headers, byte[] body)

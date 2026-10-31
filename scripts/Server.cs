@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Text;
 
 public partial class Server : Node
 {
@@ -9,7 +10,8 @@ public partial class Server : Node
     private Node2D _tableInstance;
     private List<long> _playerIds = new List<long>();
     private Dictionary<long, int> _authenticatedPlayers = new Dictionary<long, int>(); // PeerID -> TeamID
-    private Dictionary<long, int> _pendingAuthentications = new Dictionary<long, int>();
+    private Dictionary<long, string> _pendingAuthentications = new Dictionary<long, string>();
+    private Dictionary<long, string> _authenticatedUserIds = new Dictionary<long, string>();
     private int _currentTurnPlayerId = 0;
     private bool _isGameOver = false; // Oyunun bittiğini takip etmek için
 
@@ -42,70 +44,120 @@ public partial class Server : Node
     };
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
-    public void AuthenticateOnServer(string token, int teamFromClient)
+    public void AuthenticateOnServer(string joinTicket)
     {
         long senderId = Multiplayer.GetRemoteSenderId();
-        if (string.IsNullOrEmpty(token)) return;
-
-        if (GlobalData.Instance.ActiveMatch == null)
+        if (senderId <= 0 || string.IsNullOrWhiteSpace(joinTicket))
         {
-            _pendingAuthentications[senderId] = teamFromClient;
-            GD.Print($"[SERVER-AUTH] Peer {senderId} match verisini bekliyor.");
+            RejectPeer(senderId, "Missing match ticket.");
             return;
         }
 
-        AuthenticatePeer(senderId, teamFromClient);
+        if (_authenticatedPlayers.ContainsKey(senderId) || _pendingAuthentications.ContainsKey(senderId))
+            return;
+
+        if (GlobalData.Instance.ActiveMatch == null)
+        {
+            _pendingAuthentications[senderId] = joinTicket;
+            GD.Print($"[SERVER-AUTH] Peer {senderId} is waiting for match data.");
+            return;
+        }
+
+        ValidateJoinTicket(senderId, joinTicket);
     }
 
     public void ProcessPendingAuthentications()
     {
         if (GlobalData.Instance.ActiveMatch == null) return;
 
-        foreach (var pending in _pendingAuthentications)
-            AuthenticatePeer(pending.Key, pending.Value);
-
+        var pending = new List<KeyValuePair<long, string>>(_pendingAuthentications);
         _pendingAuthentications.Clear();
+        foreach (var item in pending)
+            ValidateJoinTicket(item.Key, item.Value);
     }
 
-    private void AuthenticatePeer(long peerId, int teamId)
+    private void ValidateJoinTicket(long peerId, string joinTicket)
     {
-        if (teamId < 0 || teamId > 1)
+        string matchId = GlobalData.Instance.ActiveMatch?.matchId ?? "";
+        if (string.IsNullOrWhiteSpace(matchId))
         {
-            GD.PrintErr($"[SERVER-AUTH] Gecersiz takim: {teamId}");
+            RejectPeer(peerId, "Match data is unavailable.");
             return;
         }
 
-        if (!_authenticatedPlayers.ContainsKey(peerId))
+        var request = new HttpRequest();
+        AddChild(request);
+        string requestJson = JsonSerializer.Serialize(new { matchId, joinTicket });
+        string[] headers = { "Content-Type: application/json" };
+        request.RequestCompleted += (result, responseCode, responseHeaders, body) =>
         {
-            _authenticatedPlayers[peerId] = teamId;
-            _hasShotThisTurn[peerId] = false;
-            GD.Print($"[SERVER-AUTH] Peer {peerId} takım {teamId} olarak doğrulandı.");
-
-            var clientNodeAuth = GetParent().GetNodeOrNull<Node>("Client");
-            if (clientNodeAuth != null)
+            try
             {
-                clientNodeAuth.RpcId(peerId, "SetPlayerTeam", teamId);
-                clientNodeAuth.RpcId(peerId, "SyncTurn", _currentTurnPlayerId);
+                if (result != (long)HttpRequest.Result.Success || responseCode != 200)
+                {
+                    RejectPeer(peerId, $"Backend rejected game ticket (HTTP {responseCode}).");
+                    return;
+                }
+
+                using JsonDocument doc = JsonDocument.Parse(body);
+                JsonElement root = doc.RootElement;
+                string userId = root.GetProperty("userId").GetString() ?? "";
+                int teamId = root.GetProperty("teamId").GetInt32();
+                AuthenticatePeer(peerId, userId, teamId);
             }
+            catch (Exception e)
+            {
+                GD.PrintErr("[SERVER-AUTH] Ticket validation response could not be read: " + e.Message);
+                RejectPeer(peerId, "Invalid ticket validation response.");
+            }
+            finally
+            {
+                request.QueueFree();
+            }
+        };
+
+        string url = "http://host.docker.internal:8080/api/match/validate-game-ticket";
+        Error error = request.Request(url, headers, HttpClient.Method.Post, requestJson);
+        if (error != Error.Ok)
+        {
+            request.QueueFree();
+            RejectPeer(peerId, "Could not contact the authentication service.");
         }
     }
 
-    private int ValidateTokenWithBackend(string token)
+    private void AuthenticatePeer(long peerId, string userId, int teamId)
     {
-        // TODO: HttpRequest ile Java backend'e token doğrulaması yap
-        // Backend şu şekilde yanıt vermeli: { "teamId": 0 veya 1, "userId": "...", "valid": true }
-        // Şimdilik: Oyunun başında toplar zaten yaratıldığından, bunu mock'layabiliriz.
-        // Gerçek implementasyon: GlobalData.Instance.ActiveMatch.myTeam kullan
-        
-        if (GlobalData.Instance.ActiveMatch != null)
+        if (teamId < 0 || teamId > 1 || string.IsNullOrWhiteSpace(userId)
+                || _authenticatedPlayers.Count >= 2
+                || _authenticatedUserIds.ContainsValue(userId)
+                || _authenticatedPlayers.ContainsValue(teamId))
         {
-            int teamId = GlobalData.Instance.ActiveMatch.myTeam;
-            GD.Print($"[SERVER-AUTH] Mock: TeamID={teamId} (GlobalData'dan alındı)");
-            return teamId;
+            RejectPeer(peerId, "Player is not eligible for this match or the seat is occupied.");
+            return;
         }
-        
-        GD.PrintErr("[SERVER-AUTH] ActiveMatch verisi yok!");
-        return -1;
+
+        _authenticatedPlayers[peerId] = teamId;
+        _authenticatedUserIds[peerId] = userId;
+        _hasShotThisTurn[peerId] = false;
+        GD.Print($"[SERVER-AUTH] Verified participant {userId} as team {teamId}.");
+
+        var clientNodeAuth = GetParent().GetNodeOrNull<Node>("Client");
+        if (clientNodeAuth != null)
+        {
+            clientNodeAuth.RpcId(peerId, "SetPlayerTeam", teamId);
+            clientNodeAuth.RpcId(peerId, "SyncTurn", _currentTurnPlayerId);
+        }
+    }
+
+    private void RejectPeer(long peerId, string reason)
+    {
+        if (peerId > 0)
+        {
+            GD.PrintErr($"[SERVER-AUTH] Rejected peer {peerId}: {reason}");
+            _pendingAuthentications.Remove(peerId);
+            if (Multiplayer.MultiplayerPeer is ENetMultiplayerPeer peer)
+                peer.DisconnectPeer((int)peerId);
+        }
     }
 
     public override void _Ready()

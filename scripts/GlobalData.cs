@@ -47,6 +47,7 @@ public class MatchSessionData
     public string serverIp { get; set; }
     public int serverPort { get; set; }
     public string status { get; set; }
+    public string gameJoinToken { get; set; }
     public int myTeam { get; set; } // 0 veya 1
 
 

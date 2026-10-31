@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BallForgeGodotServer")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ab139af5a8f2855046c8a8e05dbb9abadc8f2a0c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+94ea407dac9464c37434d65d391d75b78d7c5b79")]
 [assembly: System.Reflection.AssemblyProductAttribute("BallForgeGodotServer")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BallForgeGodotServer")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
