@@ -532,6 +532,62 @@ public partial class Server : Node
             var clientNode = GetParent().GetNode("Client");
             // Client’e de serverHealth/serverDamage ve yetenek JSON'u gönderiyoruz
             clientNode.Rpc("SyncSpawnBall", ball.Name, pos, textureIndex, teamId, serverHealth, serverDamage, abilityJsonString);
+            GD.Print($"[BALL-SPAWN] Match={match.matchId} Server=godot_headless-{match.matchId} Ball={ball.Name} Team={teamId} Template={textureIndex} Position=({pos.X:F2},{pos.Y:F2}) UDP={match.serverPort}");
+            ReportBallSpawnedEvent(match.matchId, match.serverPort, ball.Name, teamId, textureIndex, pos.X, pos.Y);
+        }
+    }
+
+    private void ReportBallSpawnedEvent(string matchId, int serverPort, string ballId, int teamId,
+            int ballTemplateId, float positionX, float positionY, int attempt = 0)
+    {
+        if (!RuntimeMode.IsServer || string.IsNullOrWhiteSpace(_gameServerKey)) return;
+
+        var request = new HttpRequest();
+        AddChild(request);
+        var payload = JsonSerializer.Serialize(new
+        {
+            matchId,
+            eventType = "BALL_SPAWNED",
+            serverPort,
+            ballId,
+            teamId,
+            ballTemplateId,
+            positionX,
+            positionY
+        });
+        string[] headers = { "Content-Type: application/json", "X-Game-Server-Key: " + _gameServerKey };
+        request.RequestCompleted += (result, responseCode, responseHeaders, body) =>
+        {
+            request.QueueFree();
+            if (result == (long)HttpRequest.Result.Success && responseCode >= 200 && responseCode < 300)
+            {
+                GD.Print($"[BALL-SPAWN] Konum event'i Kafka'ya gönderildi: {ballId} ({positionX:F2},{positionY:F2}), UDP={serverPort}");
+                return;
+            }
+
+            GD.PrintErr($"[BALL-SPAWN] Event gönderilemedi. HTTP={responseCode}, result={result}, ball={ballId}");
+            if (attempt < 3 && IsInsideTree())
+            {
+                GetTree().CreateTimer(2.0).Timeout += () =>
+                {
+                    if (IsInsideTree()) ReportBallSpawnedEvent(matchId, serverPort, ballId, teamId, ballTemplateId, positionX, positionY, attempt + 1);
+                };
+            }
+        };
+
+        Error error = request.Request("http://host.docker.internal:8080/api/match/server-event",
+                headers, HttpClient.Method.Post, payload);
+        if (error != Error.Ok)
+        {
+            request.QueueFree();
+            GD.PrintErr($"[BALL-SPAWN] API isteği başlatılamadı: {error}, ball={ballId}");
+            if (attempt < 3 && IsInsideTree())
+            {
+                GetTree().CreateTimer(2.0).Timeout += () =>
+                {
+                    if (IsInsideTree()) ReportBallSpawnedEvent(matchId, serverPort, ballId, teamId, ballTemplateId, positionX, positionY, attempt + 1);
+                };
+            }
         }
     }
 
