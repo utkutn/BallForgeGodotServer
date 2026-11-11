@@ -106,6 +106,7 @@ public partial class Main : Node
                 var serverNode = GetNodeOrNull<Server>("Server");
                 if (RuntimeMode.IsServer && serverNode != null)
                 {
+                    serverNode.SetGameServerKey(_gameServerKey);
                     serverNode.StartServer(matchData.serverPort);
                     serverNode.ProcessPendingAuthentications();
                 }

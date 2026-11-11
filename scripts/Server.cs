@@ -14,6 +14,9 @@ public partial class Server : Node
     private Dictionary<long, string> _authenticatedUserIds = new Dictionary<long, string>();
     private int _currentTurnPlayerId = 0;
     private bool _isGameOver = false; // Oyunun bittiğini takip etmek için
+    private string _gameServerKey = "";
+    private bool _resultReportInFlight;
+    private bool _resultReported;
 
     // KRİTİK: Vuruşu başlatan topun adını burada tutuyoruz
     private string _currentAttackerBallName = "";
@@ -31,6 +34,11 @@ public partial class Server : Node
     // Bu turda zaten yetenek kullanmış olan toplar
     private HashSet<string> _abilityUsedThisTurn = new HashSet<string>();
     private bool _serverStarted;
+
+    public void SetGameServerKey(string key)
+    {
+        _gameServerKey = key ?? "";
+    }
 
     private Dictionary<int, string> runeMap = new Dictionary<int, string> {
         {0, "gold"},
@@ -730,13 +738,8 @@ public partial class Server : Node
             // Can 0 veya altına düştü mü?
             if (health <= 0 && !_isGameOver)
             {
-                _isGameOver = true;
-                // Eğer Radiant (Sol) canı bittiyse Dire (1) kazandı, 
-                // Eğer Dire (Sağ) canı bittiyse Radiant (0) kazandı.
                 int winnerTeam = (side == "Radiant") ? 1 : 0;
-
-                GD.Print($"[SERVER] OYUN BİTTİ! Kazanan Takım: {winnerTeam}");
-                clientNodeCastle.Rpc("OnGameOver", winnerTeam);
+                FinishMatch(winnerTeam, "castle_destroyed");
             }
         }
     }
@@ -911,27 +914,89 @@ private bool AnyBallMoving()
         }
 
         GD.Print($"[SERVER] Kalan Toplar -> Radiant: {radiantBalls}, Dire: {direBalls}");
+        if (_isGameOver) return;
 
-        if (!_isGameOver)
+        if (radiantBalls == 0)
         {
-            var clientNode = GetParent().GetNodeOrNull<Node>("Client");
-
-            if (radiantBalls == 0)
-            {
-                _isGameOver = true;
-                GD.Print("[SERVER] Radiant topları bitti! Dire kazandı.");
-                clientNode?.Rpc("OnGameOver", 1); // Dire kazandı
-            }
-            else if (direBalls == 0)
-            {
-                _isGameOver = true;
-                GD.Print("[SERVER] Dire topları bitti! Radiant kazandı.");
-                clientNode?.Rpc("OnGameOver", 0); // Radiant kazandı
-            }
+            GD.Print("[SERVER] Radiant topları bitti! Dire kazandı.");
+            FinishMatch(1, "team_balls_eliminated");
+        }
+        else if (direBalls == 0)
+        {
+            GD.Print("[SERVER] Dire topları bitti! Radiant kazandı.");
+            FinishMatch(0, "team_balls_eliminated");
         }
     }
 
+    private void FinishMatch(int winnerTeamId, string reason)
+    {
+        if (_isGameOver) return;
+        _isGameOver = true;
+        GD.Print($"[SERVER] Maç bitti. Kazanan takım: {winnerTeamId}, neden: {reason}");
+        GetParent().GetNodeOrNull<Node>("Client")?.Rpc("OnGameOver", winnerTeamId);
+        ReportMatchResult(winnerTeamId);
+    }
 
+    private void ReportMatchResult(int winnerTeamId)
+    {
+        if (!RuntimeMode.IsServer || _resultReported || _resultReportInFlight) return;
+
+        MatchSessionData match = GlobalData.Instance?.ActiveMatch;
+        if (match == null || string.IsNullOrWhiteSpace(match.matchId) || string.IsNullOrWhiteSpace(_gameServerKey))
+        {
+            GD.PrintErr("[MATCH-RESULT] Maç kimliği veya server anahtarı yok; 5 saniye sonra yeniden denenecek.");
+            ScheduleResultRetry(winnerTeamId);
+            return;
+        }
+
+        string winnerId = winnerTeamId == 0 ? match.player1Id : match.player2Id;
+        if (string.IsNullOrWhiteSpace(winnerId))
+        {
+            GD.PrintErr("[MATCH-RESULT] Kazanan oyuncu ID'si yok; 5 saniye sonra yeniden denenecek.");
+            ScheduleResultRetry(winnerTeamId);
+            return;
+        }
+
+        var request = new HttpRequest();
+        AddChild(request);
+        _resultReportInFlight = true;
+        string payload = JsonSerializer.Serialize(new { sessionId = match.matchId, winnerId, draw = false });
+        string[] headers = { "Content-Type: application/json", "X-Game-Server-Key: " + _gameServerKey };
+
+        request.RequestCompleted += (result, responseCode, responseHeaders, body) =>
+        {
+            _resultReportInFlight = false;
+            request.QueueFree();
+            if (result == (long)HttpRequest.Result.Success && responseCode >= 200 && responseCode < 300)
+            {
+                _resultReported = true;
+                GD.Print($"[MATCH-RESULT] Sonuç API'ye kaydedildi. HTTP {responseCode}, kazanan: {winnerId}");
+                return;
+            }
+
+            string details = body == null ? "boş yanıt" : Encoding.UTF8.GetString(body);
+            GD.PrintErr($"[MATCH-RESULT] Rapor başarısız. HTTP {responseCode}, result {result}: {details}");
+            ScheduleResultRetry(winnerTeamId);
+        };
+
+        Error error = request.Request("http://host.docker.internal:8080/api/matches/report", headers, HttpClient.Method.Post, payload);
+        if (error != Error.Ok)
+        {
+            _resultReportInFlight = false;
+            request.QueueFree();
+            GD.PrintErr("[MATCH-RESULT] API isteği başlatılamadı: " + error);
+            ScheduleResultRetry(winnerTeamId);
+        }
+    }
+
+    private void ScheduleResultRetry(int winnerTeamId)
+    {
+        if (!IsInsideTree()) return;
+        GetTree().CreateTimer(5.0).Timeout += () =>
+        {
+            if (IsInsideTree()) ReportMatchResult(winnerTeamId);
+        };
+    }
     public void SpawnBallAtPosition(Vector2 pos, int textureIdx, int teamId)
     {
         var rng = new RandomNumberGenerator();
@@ -943,3 +1008,4 @@ private bool AnyBallMoving()
     [Rpc(MultiplayerApi.RpcMode.Authority)]
     public void SyncBallDamage(string ballName, int damage) { }
 }
+
