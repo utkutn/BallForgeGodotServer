@@ -41,14 +41,12 @@ public partial class Server : Node
     }
 
     private Dictionary<int, string> runeMap = new Dictionary<int, string> {
-        {0, "gold"},
-        {1, "health"},
-        {2, "lighting"},
-        {3, "trap"},
-        {4, "water"},
-        {5, "banana"},
-        {6, "dice"},
-        {7, "key"}
+        {0, "health"},
+        {1, "lighting"},
+        {2, "trap"},
+        {3, "water"},
+        {4, "banana"},
+        {5, "dice"}
     };
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
@@ -307,7 +305,7 @@ public partial class Server : Node
             // 2. Senin oluşturduğun runeMap'e sor: "Bu sayı ne anlama geliyor?"
             if (runeMap.TryGetValue(runeIdx, out string runeTypeString))
             {
-                // Artik runeTypeString "gold", "health", "lighting" gibi bir kelime.
+                // Rune türü health, lighting, trap, water, banana veya dice olabilir.
                 GD.Print($"[SERVER] {ball.Name} rün aldı: {runeTypeString}");
 
                 switch (runeTypeString)
@@ -320,11 +318,6 @@ public partial class Server : Node
                         int newHealth = (int)ball.GetMeta("health", 0) + healAmount;
                         ball.SetMeta("health", newHealth);
                         clientNodeRuneEffect?.Rpc("SyncBallStats", ball.Name, newHealth);
-                        break;
-
-                    case "gold":
-                        // Burada Java backend'e gold ekleme isteği atılabilir veya maç sonu bonusu olarak işaretlenebilir
-                        GD.Print("[SERVER] Altın rünü toplandı! (Maç sonu işlenecek)");
                         break;
 
                     case "lighting":
@@ -400,10 +393,6 @@ public partial class Server : Node
                         GetTree().CreateTimer(4.0f).Timeout += () => {
                             if (IsInstanceValid(ball)) ball.LinearDamp = 0.1f;
                         };
-                        break;
-
-                    case "key":
-                        GD.Print("[SERVER] Anahtar toplandı! Özel yetenek aktif edilebilir.");
                         break;
                 }
             }

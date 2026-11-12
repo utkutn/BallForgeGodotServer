@@ -151,8 +151,8 @@ public partial class Main : Node
 
         rune_images.Clear();
         Dictionary<int, string> RuneMap = new Dictionary<int, string> {
-            {0, "gold"}, {1, "health"}, {2, "lighting"}, {3, "trap"},
-            {4, "water"}, {5, "banana"}, {6, "dice"}, {7, "key"}
+            {0, "health"}, {1, "lighting"}, {2, "trap"},
+            {3, "water"}, {4, "banana"}, {5, "dice"}
         };
 
         for (int i = 0; i < RuneMap.Count; i++)
