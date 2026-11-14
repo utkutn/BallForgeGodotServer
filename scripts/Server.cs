@@ -133,12 +133,28 @@ public partial class Server : Node
 
     private void AuthenticatePeer(long peerId, string userId, int teamId)
     {
-        if (teamId < 0 || teamId > 1 || string.IsNullOrWhiteSpace(userId)
-                || _authenticatedPlayers.Count >= 2
-                || _authenticatedUserIds.ContainsValue(userId)
-                || _authenticatedPlayers.ContainsValue(teamId))
+        if (teamId < 0 || teamId > 1 || string.IsNullOrWhiteSpace(userId))
         {
-            RejectPeer(peerId, "Player is not eligible for this match or the seat is occupied.");
+            RejectPeer(peerId, $"Invalid ticket identity/team from API (userId='{userId}', teamId={teamId}).");
+            return;
+        }
+
+        long previousPeerId = 0;
+        foreach (var entry in _authenticatedUserIds)
+        {
+            if (entry.Value == userId) { previousPeerId = entry.Key; break; }
+        }
+        if (previousPeerId > 0 && previousPeerId != peerId)
+        {
+            if (Multiplayer.MultiplayerPeer is ENetMultiplayerPeer oldPeer)
+                oldPeer.DisconnectPeer((int)previousPeerId);
+            RemovePeerState(previousPeerId);
+            GD.Print($"[SERVER] {userId} eski bağlantısı kapatıldı; reconnect kabul ediliyor.");
+        }
+
+        if (_authenticatedPlayers.Count >= 2 || _authenticatedPlayers.ContainsValue(teamId))
+        {
+            RejectPeer(peerId, $"Seat already occupied (team={teamId}, authenticatedPlayers={_authenticatedPlayers.Count}).");
             return;
         }
 
@@ -153,6 +169,7 @@ public partial class Server : Node
             clientNodeAuth.RpcId(peerId, "SetPlayerTeam", teamId);
             clientNodeAuth.RpcId(peerId, "SyncTurn", _currentTurnPlayerId);
         }
+        SendMatchSnapshot(peerId);
     }
 
     private void RejectPeer(long peerId, string reason)
@@ -197,6 +214,7 @@ public partial class Server : Node
             Multiplayer.MultiplayerPeer = _peer;
             GD.Print($"[SERVER] Port {port} hazir ve dinlemede.");
             Multiplayer.PeerConnected += OnPeerConnected;
+            Multiplayer.PeerDisconnected += OnPeerDisconnected;
 
             // Kale Alanlarını Dinle
             if (_tableInstance != null)
@@ -219,39 +237,56 @@ public partial class Server : Node
     private void OnPeerConnected(long id)
     {
         if (!_playerIds.Contains(id)) _playerIds.Add(id);
+        GD.Print($"[SERVER] Peer bağlandı, maç bileti bekleniyor: {id}");
+    }
 
-        // DÜZELTME: assignedTeam atamasını buradan sildik çünkü AuthenticateOnServer içinde Java'dan alıyoruz.
+    private void OnPeerDisconnected(long id)
+    {
+        RemovePeerState(id);
+        GD.Print($"[SERVER] Peer bağlantısı kapandı: {id}");
+    }
 
-        var clientNodePeer = GetParent().GetNode("Client");
-        if (clientNodePeer != null)
+    private void RemovePeerState(long peerId)
+    {
+        _authenticatedPlayers.Remove(peerId);
+        _authenticatedUserIds.Remove(peerId);
+        _pendingAuthentications.Remove(peerId);
+        _hasShotThisTurn.Remove(peerId);
+        _playerIds.Remove(peerId);
+    }
+
+    private void SendMatchSnapshot(long peerId)
+    {
+        var clientNodePeer = GetParent().GetNodeOrNull<Node>("Client");
+        if (clientNodePeer == null) return;
+
+        clientNodePeer.RpcId(peerId, "SyncTurn", _currentTurnPlayerId);
+        clientNodePeer.RpcId(peerId, "UpdateCastleHealth", "Radiant", _radiantHealth);
+        clientNodePeer.RpcId(peerId, "UpdateCastleHealth", "Dire", _direHealth);
+
+        foreach (Node node in GetTree().GetNodesInGroup("runes"))
         {
-            // Yeni oyuncuya sadece sırayı ve kale canlarını bildiriyoruz (Takım bilgisini Auth metodunda bildireceğiz)
-            clientNodePeer.RpcId(id, "SyncTurn", _currentTurnPlayerId);
-
-            // Mevcut kale canlarını yeni gelene bildir
-            clientNodePeer.RpcId(id, "UpdateCastleHealth", "Radiant", _radiantHealth);
-            clientNodePeer.RpcId(id, "UpdateCastleHealth", "Dire", _direHealth);
-
-            // Mevcut rünleri yeni bağlanana bildir - YENİ EKLEME
-            foreach (Node node in GetTree().GetNodesInGroup("runes"))
+            if (node is Area2D rune)
             {
-                if (node is Area2D rune)
-                {
-                    int rIdx = rune.HasMeta("rune_idx") ? (int)rune.GetMeta("rune_idx") : 0;
-                    clientNodePeer.RpcId(id, "SyncRune", rune.GlobalPosition, rune.Name, rIdx);
-                }
+                int runeIndex = rune.HasMeta("rune_idx") ? (int)rune.GetMeta("rune_idx") : 0;
+                clientNodePeer.RpcId(peerId, "SyncRune", rune.GlobalPosition, rune.Name, runeIndex);
             }
         }
+
         foreach (Node node in GetTree().GetNodesInGroup("balls"))
         {
             if (node is RigidBody2D ball)
             {
-                int tIdx = (int)ball.GetMeta("texture_idx");
-                int team = (int)ball.GetMeta("team_id");
-                int hp = (int)ball.GetMeta("health");
-                int dmg = (int)ball.GetMeta("damage");
+                int tIdx = ball.HasMeta("texture_idx") ? (int)ball.GetMeta("texture_idx") : 0;
+                int team = ball.HasMeta("team_id") ? (int)ball.GetMeta("team_id") : 0;
+                int hp = ball.HasMeta("health") ? (int)ball.GetMeta("health") : 20;
+                int dmg = ball.HasMeta("damage") ? (int)ball.GetMeta("damage") : 0;
                 string abilityJson = ball.HasMeta("ability_json") ? (string)ball.GetMeta("ability_json") : "{}";
-                clientNodePeer.RpcId(id, "SyncSpawnBall", ball.Name, ball.Position, tIdx, team, hp, dmg, abilityJson);
+                clientNodePeer.RpcId(peerId, "SyncSpawnBall", ball.Name, ball.Position, tIdx, team, hp, dmg, abilityJson);
+                int shield = ball.HasMeta("shield") ? (int)ball.GetMeta("shield") : 0;
+                clientNodePeer.RpcId(peerId, "SyncBallStatsWithShield", ball.Name, hp, shield);
+                if (ball.HasMeta("invulnerable") && (int)ball.GetMeta("invulnerable") != 0)
+                    clientNodePeer.RpcId(peerId, "SyncInvulnerable", ball.Name);
             }
         }
     }
