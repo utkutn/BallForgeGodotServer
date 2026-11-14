@@ -6,6 +6,7 @@ public partial class ClientRpcRelay : Node
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void SetPlayerTeam(int teamId) { }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void AssignTeam(int teamId) { }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void SyncTurn(int currentTurnId) { }
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void SyncTurnTimer(int secondsRemaining) { }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void UpdateCastleHealth(string side, int health) { }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void SyncRune(Vector2 pos, string name, int runeIdx) { }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void RemoveRune(string runeName) { }

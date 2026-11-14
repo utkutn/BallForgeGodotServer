@@ -25,6 +25,11 @@ public partial class Server : Node
     private Dictionary<long, bool> _hasShotThisTurn = new Dictionary<long, bool>();
     private float _positionUpdateTimer = 0f;
     private const float POSITION_UPDATE_INTERVAL = 1f / 20f; // 20 Hz (50ms)
+    private const float TURN_DURATION_SECONDS = 45f;
+    private float _turnTimeRemaining = TURN_DURATION_SECONDS;
+    private bool _turnTimerActive;
+    private bool _matchHasStarted;
+    private int _lastTurnTimerBroadcast = -1;
 
     // KALE CANLARI VE COOLDOWN
     private int _radiantHealth = 100;
@@ -161,6 +166,11 @@ public partial class Server : Node
         _authenticatedPlayers[peerId] = teamId;
         _authenticatedUserIds[peerId] = userId;
         _hasShotThisTurn[peerId] = false;
+        if (_authenticatedPlayers.Count >= 2)
+        {
+            _matchHasStarted = true;
+            TryStartTurnTimer();
+        }
         GD.Print($"[SERVER-AUTH] Verified participant {userId} as team {teamId}.");
 
         var clientNodeAuth = GetParent().GetNodeOrNull<Node>("Client");
@@ -261,6 +271,7 @@ public partial class Server : Node
         if (clientNodePeer == null) return;
 
         clientNodePeer.RpcId(peerId, "SyncTurn", _currentTurnPlayerId);
+        clientNodePeer.RpcId(peerId, "SyncTurnTimer", _turnTimerActive ? Mathf.CeilToInt(_turnTimeRemaining) : -1);
         clientNodePeer.RpcId(peerId, "UpdateCastleHealth", "Radiant", _radiantHealth);
         clientNodePeer.RpcId(peerId, "UpdateCastleHealth", "Dire", _direHealth);
 
@@ -845,6 +856,10 @@ public partial class Server : Node
             return;
         }
 
+        // Süre dolması veya topların durmasını bekleme aşamasında hamle kabul etme.
+        if (!_turnTimerActive)
+            return;
+
         // GÜVENLİK 3: Tüm toplar tamamen mi durdu? (Rapid-Fire engellemesi)
         if (AnyBallMoving())
         {
@@ -888,7 +903,11 @@ public partial class Server : Node
             // Bu turda bu oyuncu vurdu olarak işaretle (Rapid-Fire engelleme)
             _hasShotThisTurn[senderId] = true;
 
+            // Sıra karşı tarafa geçer; sayaç toplar durunca başlar.
             ChangeTurn();
+            _turnTimerActive = false;
+            _turnTimeRemaining = TURN_DURATION_SECONDS;
+            BroadcastTurnTimer(-1);
         }
     }
 
@@ -949,14 +968,56 @@ private bool AnyBallMoving()
         // Client düğümünü bul ve RPC gönder
         var clientNode = GetParent().GetNodeOrNull("Client");
         if (clientNode != null)
-        {
             clientNode.Rpc("SyncTurn", _currentTurnPlayerId);
+    }
+
+    private void TryStartTurnTimer()
+    {
+        if (!_matchHasStarted || _isGameOver || _turnTimerActive || AnyBallMoving())
+            return;
+
+        _turnTimeRemaining = TURN_DURATION_SECONDS;
+        _turnTimerActive = true;
+        GD.Print($"[TURN-TIMER] Team {_currentTurnPlayerId} için 45 saniye başladı.");
+        BroadcastTurnTimer(45);
+    }
+
+    private void BroadcastTurnTimer(int secondsRemaining)
+    {
+        if (_lastTurnTimerBroadcast == secondsRemaining)
+            return;
+
+        _lastTurnTimerBroadcast = secondsRemaining;
+        GetParent().GetNodeOrNull<Node>("Client")?.Rpc("SyncTurnTimer", secondsRemaining);
+    }
+
+    private void UpdateTurnTimer(double delta)
+    {
+        if (!_matchHasStarted || _isGameOver)
+            return;
+
+        if (!_turnTimerActive)
+        {
+            TryStartTurnTimer();
+            return;
         }
+
+        _turnTimeRemaining -= (float)delta;
+        int secondsRemaining = Mathf.Max(0, Mathf.CeilToInt(_turnTimeRemaining));
+        BroadcastTurnTimer(secondsRemaining);
+        if (_turnTimeRemaining > 0f)
+            return;
+
+        GD.Print($"[TURN-TIMER] Team {_currentTurnPlayerId} süreyi kullandı; maç devam ediyor, sıra rakibe geçiyor.");
+        _turnTimerActive = false;
+        ChangeTurn();
+        TryStartTurnTimer();
     }
 
     public override void _Process(double delta)
     {
         if (DisplayServer.GetName() != "headless") return;
+        UpdateTurnTimer(delta);
         var clientNode = GetParent().GetNodeOrNull("Client");
         if (clientNode == null) return;
 
@@ -1012,6 +1073,8 @@ private bool AnyBallMoving()
     {
         if (_isGameOver) return;
         _isGameOver = true;
+        _turnTimerActive = false;
+        BroadcastTurnTimer(-1);
         GD.Print($"[SERVER] Maç bitti. Kazanan takım: {winnerTeamId}, neden: {reason}");
         GetParent().GetNodeOrNull<Node>("Client")?.Rpc("OnGameOver", winnerTeamId);
         ReportMatchResult(winnerTeamId);
