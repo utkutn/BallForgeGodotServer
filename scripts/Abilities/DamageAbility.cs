@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using Godot;
 using System;
@@ -94,6 +94,8 @@ public sealed class DamageAbility : IBallAbility
 
         if (target.HasMeta("invulnerable") && (int)target.GetMeta("invulnerable") > 0 && !pierce)
         {
+            AbilityLogger.Log(owner, "DamageAbility", "BLOCKED",
+                $"Target: {target.Name}, Reason: invulnerable");
             GD.Print($"[ABILITY] {owner.Name} DamageAbility blocked by invulnerability on {target.Name}.");
             return;
         }
@@ -122,10 +124,14 @@ public sealed class DamageAbility : IBallAbility
         {
             int currentHealth = (int)target.GetMeta("health");
             target.SetMeta("health", currentHealth - remainingDamage);
+            AbilityLogger.Log(owner, "DamageAbility", "APPLIED",
+                $"Target: {target.Name}, HP Damage: {remainingDamage}, New HP: {target.GetMeta("health")}, Remaining Shield: {(target.HasMeta("shield") ? (int)target.GetMeta("shield") : 0)}");
             GD.Print($"[ABILITY] {owner.Name} DamageAbility deals {remainingDamage} damage to {target.Name}. New health: {target.GetMeta("health")}.");
         }
         else
         {
+            AbilityLogger.Log(owner, "DamageAbility", "ABSORBED",
+                $"Target: {target.Name}, Remaining Shield: {(target.HasMeta("shield") ? (int)target.GetMeta("shield") : 0)}");
             GD.Print($"[ABILITY] {owner.Name} DamageAbility was absorbed by {target.Name}'s shield.");
         }
 

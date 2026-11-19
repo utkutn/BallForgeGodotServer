@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -643,7 +643,10 @@ public partial class Server : Node
             {
                 if (attacker.BallAbility is DamageAbility damageAbility && !damageAbility.ActivateOnStop)
                 {
+                    AbilityLogger.Log(attacker, "DamageAbility", "TRIGGERED",
+                        $"AOE Radius: {damageAbility.AreaOfEffect}, Damage: {damageAbility.Value}");
                     var targetsInAOE = GetBallsInArea(attacker.GlobalPosition, damageAbility.AreaOfEffect);
+                    int affectedEnemyCount = 0;
                     foreach (var target in targetsInAOE)
                     {
                         if (target == attacker) continue;
@@ -651,8 +654,11 @@ public partial class Server : Node
                         int attackerTeam = (int)attacker.GetMeta("team_id");
                         if (targetTeam == attackerTeam) continue;
 
+                        affectedEnemyCount++;
                         damageAbility.Execute(attacker, target);
                     }
+                    AbilityLogger.Log(attacker, "DamageAbility", "EXECUTED",
+                        $"Enemy targets found: {affectedEnemyCount}");
                     _abilityUsedThisTurn.Add(attacker.Name);
 
                     var clientNodeAbility = GetParent().GetNodeOrNull<Node>("Client");
@@ -660,7 +666,11 @@ public partial class Server : Node
                 }
                 else if (attacker.BallAbility is PhysicsAbility physicsAbility && !physicsAbility.ActivateOnStop)
                 {
+                    AbilityLogger.Log(attacker, "PhysicsAbility", "TRIGGERED",
+                        $"Target: {defender.Name}, Push: {physicsAbility.Push}");
                     attacker.BallAbility?.Execute(attacker, defender);
+                    AbilityLogger.Log(attacker, "PhysicsAbility", "EXECUTE_RETURNED",
+                        $"Target: {defender.Name}");
                     _abilityUsedThisTurn.Add(attacker.Name);
 
                     var clientNodeAbility = GetParent().GetNodeOrNull<Node>("Client");
@@ -727,6 +737,8 @@ public partial class Server : Node
             int reflectedDamage = (int)Math.Ceiling(damageValue * defenseAbility.Reflect);
             int attackerHealth = (int)ballA.GetMeta("health");
             ballA.SetMeta("health", attackerHealth - reflectedDamage);
+            AbilityLogger.Log(reflector, "ReflectAbility", "APPLIED",
+                $"Target: {ballA.Name}, Damage: {reflectedDamage}, Target HP: {attackerHealth - reflectedDamage}");
             GD.Print($"[REFLECT] {ballB.Name} reflected {reflectedDamage} damage back to {ballA.Name}.");
 
             var clientNodeReflect = GetParent().GetNodeOrNull<Node>("Client");
@@ -940,13 +952,7 @@ private bool AnyBallMoving()
         if (linearSpeed > linearSpeedThreshold ||
             angularSpeed > angularSpeedThreshold)
         {
-            GD.Print(
-                $"[MOVING CHECK] {rb.Name} | " +
-                $"Linear: {linearSpeed:F4} | " +
-                $"Angular: {angularSpeed:F4} | " +
-                $"Sleeping: {rb.Sleeping}"
-            );
-
+           
             return true;
         }
     }

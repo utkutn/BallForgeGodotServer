@@ -1,35 +1,43 @@
 FROM ubuntu:22.04
 
-# Microsoft'un resmi paket havuzundan .NET 8 SDK'yı kurabilmek için gerekli araçlar
-RUN apt-get update && apt-get install -y \
+ENV DEBIAN_FRONTEND=noninteractive \
+    DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+    DOTNET_NOLOGO=1 \
+    GODOT_HOME=/usr/local/bin/godot_mono
+
+# Gerekli sistem paketleri
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     wget \
     unzip \
     libgl1 \
     libxi6 \
     libfontconfig1 \
-    software-properties-common \
-    gnupg \
+    libicu70 \
     && rm -rf /var/lib/apt/lists/*
 
-# Microsoft .NET 8.0 SDK'yı Ubuntu 22.04'e resmi olarak ekliyoruz
-RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
+# Microsoft .NET 8 SDK deposu ve kurulumu
+RUN wget -q https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
     && dpkg -i packages-microsoft-prod.deb \
-    && rm packages-microsoft-prod.deb
-
-# Godot ve .NET 8'i yüklüyoruz
-RUN apt-get update && apt-get install -y \
+    && rm -f packages-microsoft-prod.deb \
+    && apt-get update && apt-get install -y --no-install-recommends \
     dotnet-sdk-8.0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Godot 4.6.2 C# (Mono) Linux standart sürümünü indiriyoruz
-RUN wget https://github.com/godotengine/godot/releases/download/4.6.2-stable/Godot_v4.6.2-stable_mono_linux_x86_64.zip \
-    && unzip Godot_v4.6.2-stable_mono_linux_x86_64.zip \
-    && mv Godot_v4.6.2-stable_mono_linux_x86_64 /usr/local/bin/godot_mono \
-    && rm Godot_v4.6.2-stable_mono_linux_x86_64.zip
+# Godot 4.7.2 Mono kurulumu
+RUN wget -q https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_mono_linux_x86_64.zip \
+    && unzip -q Godot_v4.7.2-stable_mono_linux_x86_64.zip \
+    && mv Godot_v4.7.2-stable_mono_linux_x86_64 "${GODOT_HOME}" \
+    && chmod +x "${GODOT_HOME}/Godot_v4.7.2-stable_mono_linux.x86_64" \
+    && rm -f Godot_v4.7.2-stable_mono_linux_x86_64.zip
 
-# Proje dosyalarını kopyalıyoruz
-COPY . /app
 WORKDIR /app
+COPY . /app
 
-# Standart mono binary dosyasını headless ve server modunda başlatıyoruz
-CMD ["/usr/local/bin/godot_mono/Godot_v4.6.2-stable_mono_linux.x86_64", "--headless", "--server"]
+# C# projesi varsa önceden derle
+RUN if ls *.sln >/dev/null 2>&1 || ls *.csproj >/dev/null 2>&1; then \
+        dotnet build -c Release; \
+    fi
+
+# Headless authoritative server
+CMD ["/usr/local/bin/godot_mono/Godot_v4.7.2-stable_mono_linux.x86_64", "--headless", "--server"]

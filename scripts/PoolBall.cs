@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using Godot;
 
@@ -389,14 +389,18 @@ public partial class PoolBall : RigidBody2D
 
                 if (BallAbility is DefenseAbility def && def.Invulnerable && !_hasUsedInvulnerable)
                 {
+                    AbilityLogger.Log(this, BallAbility.GetType().Name, "TRIGGERED", "Activation: stop, Invulnerable: true");
                     BallAbility.Execute(this);
+                    AbilityLogger.Log(this, BallAbility.GetType().Name, "EXECUTE_RETURNED", "Activation: stop");
                     _hasUsedInvulnerable = true;
                     clientNode?.Rpc("SyncAbilityActivated", Name, "defense", def.Shield);
                     clientNode?.Rpc("SyncInvulnerable", Name);
                 }
                 else if (!(BallAbility is DefenseAbility def2 && def2.Invulnerable))
                 {
+                    AbilityLogger.Log(this, BallAbility.GetType().Name, "TRIGGERED", "Activation: stop");
                     BallAbility.Execute(this);
+                    AbilityLogger.Log(this, BallAbility.GetType().Name, "EXECUTE_RETURNED", "Activation: stop");
                     if (BallAbility is DamageAbility dmg)
                         clientNode?.Rpc("SyncAbilityActivated", Name, "damage", dmg.Value);
                     else if (BallAbility is PhysicsAbility phy)
