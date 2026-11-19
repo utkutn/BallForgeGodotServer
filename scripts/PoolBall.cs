@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using Godot;
 
@@ -23,6 +23,8 @@ public partial class PoolBall : RigidBody2D
 
     public IBallAbility? BallAbility { get; private set; }
     private bool _hasTriggeredStopAbility = false;
+    private bool _stopAbilityArmed = false;
+    private bool _stopAbilityHasMoved = false;
     private bool _hasUsedInvulnerable = false;
     private Label? _abilityLabel;
 
@@ -75,6 +77,8 @@ public partial class PoolBall : RigidBody2D
     {
         BallAbility = AbilityFactory.CreateAbility(abilityJson);
         _hasTriggeredStopAbility = false;
+        _stopAbilityArmed = false;
+        _stopAbilityHasMoved = false;
         _hasUsedInvulnerable = false;
         if (BallAbility != null)
         {
@@ -379,36 +383,59 @@ public partial class PoolBall : RigidBody2D
         }
     }
 
+    // on_stop yetenekleri yalnızca top gerçekten oyunda hareket ettikten sonra kurulabilir.
+    // Böylece spawn anında Sleeping=true olması yeteneği tetiklemez.
+    public void ArmStopAbility()
+    {
+        if (BallAbility?.ActivateOnStop != true || _hasTriggeredStopAbility || _stopAbilityArmed)
+            return;
+
+        _stopAbilityArmed = true;
+        _stopAbilityHasMoved = false;
+        AbilityLogger.Log(this, BallAbility.GetType().Name, "ARMED", "Activation: stop; waiting for movement and stop");
+    }
+
     public override void _PhysicsProcess(double delta)
     {
-        if (Multiplayer.IsServer() && BallAbility?.ActivateOnStop == true && !_hasTriggeredStopAbility)
-        {
-            if (LinearVelocity.Length() < 1.0f && Sleeping)
-            {
-                var clientNode = GetTree().Root.FindChild("Client", true, false) as Node;
+        if (!Multiplayer.IsServer() || BallAbility?.ActivateOnStop != true ||
+            _hasTriggeredStopAbility || !_stopAbilityArmed)
+            return;
 
-                if (BallAbility is DefenseAbility def && def.Invulnerable && !_hasUsedInvulnerable)
-                {
-                    AbilityLogger.Log(this, BallAbility.GetType().Name, "TRIGGERED", "Activation: stop, Invulnerable: true");
-                    BallAbility.Execute(this);
-                    AbilityLogger.Log(this, BallAbility.GetType().Name, "EXECUTE_RETURNED", "Activation: stop");
-                    _hasUsedInvulnerable = true;
-                    clientNode?.Rpc("SyncAbilityActivated", Name, "defense", def.Shield);
-                    clientNode?.Rpc("SyncInvulnerable", Name);
-                }
-                else if (!(BallAbility is DefenseAbility def2 && def2.Invulnerable))
-                {
-                    AbilityLogger.Log(this, BallAbility.GetType().Name, "TRIGGERED", "Activation: stop");
-                    BallAbility.Execute(this);
-                    AbilityLogger.Log(this, BallAbility.GetType().Name, "EXECUTE_RETURNED", "Activation: stop");
-                    if (BallAbility is DamageAbility dmg)
-                        clientNode?.Rpc("SyncAbilityActivated", Name, "damage", dmg.Value);
-                    else if (BallAbility is PhysicsAbility phy)
-                        clientNode?.Rpc("SyncAbilityActivated", Name, "physics", (int)phy.Push);
-                }
-                _hasTriggeredStopAbility = true;
-            }
+        // Önce hareket görülmeli; yeni oluşturulmuş ve hiç oynatılmamış toplar tetiklenmez.
+        bool hasMeaningfulMotion = LinearVelocity.Length() >= 1.0f || Mathf.Abs(AngularVelocity) >= 0.05f;
+        if (hasMeaningfulMotion)
+        {
+            _stopAbilityHasMoved = true;
+            return;
         }
+
+        if (!_stopAbilityHasMoved || !Sleeping)
+            return;
+
+        var clientNode = GetTree().Root.FindChild("Client", true, false) as Node;
+
+        if (BallAbility is DefenseAbility def && def.Invulnerable && !_hasUsedInvulnerable)
+        {
+            AbilityLogger.Log(this, BallAbility.GetType().Name, "TRIGGERED", "Activation: stop, Invulnerable: true");
+            BallAbility.Execute(this);
+            AbilityLogger.Log(this, BallAbility.GetType().Name, "EXECUTE_RETURNED", "Activation: stop");
+            _hasUsedInvulnerable = true;
+            clientNode?.Rpc("SyncAbilityActivated", Name, "defense", def.Shield);
+            clientNode?.Rpc("SyncInvulnerable", Name);
+        }
+        else if (!(BallAbility is DefenseAbility def2 && def2.Invulnerable))
+        {
+            AbilityLogger.Log(this, BallAbility.GetType().Name, "TRIGGERED", "Activation: stop");
+            BallAbility.Execute(this);
+            AbilityLogger.Log(this, BallAbility.GetType().Name, "EXECUTE_RETURNED", "Activation: stop");
+            if (BallAbility is DamageAbility dmg)
+                clientNode?.Rpc("SyncAbilityActivated", Name, "damage", dmg.Value);
+            else if (BallAbility is PhysicsAbility phy)
+                clientNode?.Rpc("SyncAbilityActivated", Name, "physics", (int)phy.Push);
+        }
+
+        _hasTriggeredStopAbility = true;
+        _stopAbilityArmed = false;
     }
 
     public void ShowAbilityPopup(string abilityType, int value)

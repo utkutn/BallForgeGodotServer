@@ -1,4 +1,4 @@
-﻿using Godot;
+using Godot;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -638,10 +638,26 @@ public partial class Server : Node
 
         if (ballA is PoolBall attacker && ballB is PoolBall defender)
         {
+            // Doğrudan çarpılan savunmacı top da durduğunda çalışan yeteneğini kurabilir.
+            defender.ArmStopAbility();
+
             // YETENEKLİ VURUŞ: Bu turda henüz bu top tarafından yetenek kullanılmadıysa
             if (!_abilityUsedThisTurn.Contains(attacker.Name))
             {
-                if (attacker.BallAbility is DamageAbility damageAbility && !damageAbility.ActivateOnStop)
+                if (attacker.BallAbility is DamageAbility pierceAbility &&
+                    !pierceAbility.ActivateOnStop && pierceAbility.Pierce)
+                {
+                    // Pierce, ekstra hasar üretmez; aşağıdaki normal çarpışma hasarı
+                    // kalkanı atlayarak doğrudan cana uygulanır.
+                    AbilityLogger.Log(attacker, "DamageAbility", "TRIGGERED",
+                        "Effect: normal collision damage will bypass shield");
+                    _abilityUsedThisTurn.Add(attacker.Name);
+
+                    var clientNodeAbility = GetParent().GetNodeOrNull<Node>("Client");
+                    clientNodeAbility?.Rpc("SyncAbilityActivated", attacker.Name, "damage",
+                        (int)attacker.GetMeta("damage"));
+                }
+                else if (attacker.BallAbility is DamageAbility damageAbility && !damageAbility.ActivateOnStop)
                 {
                     AbilityLogger.Log(attacker, "DamageAbility", "TRIGGERED",
                         $"AOE Radius: {damageAbility.AreaOfEffect}, Damage: {damageAbility.Value}");
@@ -705,8 +721,14 @@ public partial class Server : Node
             GD.Print($"[HIT] {ballA.Name} vurdu -> {ballB.Name} soft impact sayesinde hasar yarılandı: {damageValue}");
         }
 
-        // Shield kontrolü
-        if (ballB.HasMeta("shield") && (int)ballB.GetMeta("shield") > 0)
+        // Light Beam gibi Pierce yeteneği normal vuruş hasarını kalkanın üzerinden geçirir.
+        // Invulnerable kontrolü yukarıda kaldığı için bu koruma hâlâ hasarı engeller.
+        bool piercesShield = ballA is PoolBall piercingBall &&
+            piercingBall.BallAbility is DamageAbility piercingDamageAbility &&
+            piercingDamageAbility.Pierce && !piercingDamageAbility.ActivateOnStop;
+
+        // Shield kontrolü (Pierce aktifken atlanır)
+        if (!piercesShield && ballB.HasMeta("shield") && (int)ballB.GetMeta("shield") > 0)
         {
             int shield = (int)ballB.GetMeta("shield");
             if (shield >= damageValue)
@@ -730,6 +752,13 @@ public partial class Server : Node
 
         targetHealth -= damageValue;
         ballB.SetMeta("health", targetHealth);
+
+        if (piercesShield && ballA is PoolBall piercingAttacker)
+        {
+            int remainingShield = ballB.HasMeta("shield") ? (int)ballB.GetMeta("shield") : 0;
+            AbilityLogger.Log(piercingAttacker, "DamageAbility", "APPLIED",
+                $"Target: {ballB.Name}, HP Damage: {damageValue}, New HP: {targetHealth}, Shield bypassed, Remaining Shield: {remainingShield}");
+        }
 
         // Reflect
         if (ballB is PoolBall reflector && reflector.BallAbility is DefenseAbility defenseAbility && defenseAbility.Reflect > 0f)
@@ -908,6 +937,9 @@ public partial class Server : Node
             // Vuran topu "Aktif Saldırgan" olarak işaretle
             _currentAttackerBallName = ball.Name;
             _abilityUsedThisTurn.Clear();
+
+            if (ball is PoolBall launchedBall)
+                launchedBall.ArmStopAbility();
 
             ball.Sleeping = false;
             ball.ApplyCentralImpulse(force);
