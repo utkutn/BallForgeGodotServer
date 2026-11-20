@@ -42,8 +42,9 @@ public static class AbilityFactory
         int duration = GetInt(root, "duration");
         bool pierce = GetBool(root, "pierce");
         bool onStop = GetBool(root, "on_stop");
+        string effect = GetString(root, "effect");
 
-        return new DamageAbility(value, aoe, duration, pierce, onStop);
+        return new DamageAbility(value, aoe, duration, pierce, onStop, effect);
     }
 
     private static DefenseAbility CreateDefenseAbility(JsonElement root)
@@ -66,6 +67,13 @@ public static class AbilityFactory
         bool onStop = GetBool(root, "on_stop");
 
         return new PhysicsAbility(push, pull, bounce, pushResist, softImpact, onStop);
+    }
+
+    private static string GetString(JsonElement element, string propertyName, string defaultValue = "")
+    {
+        if (element.TryGetProperty(propertyName, out JsonElement property) && property.ValueKind == JsonValueKind.String)
+            return property.GetString() ?? defaultValue;
+        return defaultValue;
     }
 
     private static int GetInt(JsonElement element, string propertyName, int defaultValue = 0)

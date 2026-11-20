@@ -11,14 +11,16 @@ public sealed class DamageAbility : IBallAbility
     public int AreaOfEffect { get; }
     public int Duration { get; }
     public bool Pierce { get; }
+    public string Effect { get; }
 
-    public DamageAbility(int value, int aoe, int duration, bool pierce, bool activateOnStop)
+    public DamageAbility(int value, int aoe, int duration, bool pierce, bool activateOnStop, string effect = "")
     {
         Value = value;
         AreaOfEffect = aoe;
         Duration = duration;
         Pierce = pierce;
         ActivateOnStop = activateOnStop;
+        Effect = effect ?? string.Empty;
     }
 
     public void Execute(PoolBall owner, PoolBall? target = null)

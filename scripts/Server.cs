@@ -679,6 +679,21 @@ public partial class Server : Node
 
                     var clientNodeAbility = GetParent().GetNodeOrNull<Node>("Client");
                     clientNodeAbility?.Rpc("SyncAbilityActivated", attacker.Name, "damage", damageAbility.Value);
+
+                    // Visual-only meteor shower is driven by the same JSON AOE radius.
+                    // Gameplay damage above remains authoritative and server-side.
+                    if (string.Equals(damageAbility.Effect, "meteor_shower", StringComparison.OrdinalIgnoreCase)
+                        && damageAbility.AreaOfEffect > 0)
+                    {
+                        int meteorSeed = unchecked((int)GD.Randi());
+                        clientNodeAbility?.Rpc(
+                            "PlayMeteorShower",
+                            attacker.GlobalPosition,
+                            (float)damageAbility.AreaOfEffect,
+                            meteorSeed);
+
+                        GD.Print($"[METEOR] VFX broadcast | Ball={attacker.Name} | AOE={damageAbility.AreaOfEffect} | Seed={meteorSeed}");
+                    }
                 }
                 else if (attacker.BallAbility is PhysicsAbility physicsAbility && !physicsAbility.ActivateOnStop)
                 {

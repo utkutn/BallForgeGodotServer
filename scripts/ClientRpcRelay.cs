@@ -18,6 +18,7 @@ public partial class ClientRpcRelay : Node
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void RemoveBall(string ballName) { }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void UpdateBallPosition(string ballName, Vector2 newPos, float newRot) { }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void SyncAbilityActivated(string ballName, string abilityType, int value) { }
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void PlayMeteorShower(Vector2 center, float aoeRadius, int seed) { }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void SyncInvulnerable(string ballName) { }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void SyncShieldUpdated(string ballName, int absorbedAmount, int newShield) { }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] public void SyncBallDamage(string ballName, int damage) { }
