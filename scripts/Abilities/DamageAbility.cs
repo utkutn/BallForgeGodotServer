@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using Godot;
 using System;
@@ -30,8 +30,15 @@ public sealed class DamageAbility : IBallAbility
         }
 
         var enemies = GetEnemiesInArea(owner);
+        AbilityLogger.Log(owner, "DamageAbility", "TARGET_SCAN",
+            $"AOE Radius: {AreaOfEffect}; Damage: {Value}; EnemiesFound: {enemies.Count}");
+
         if (enemies.Count == 0)
+        {
+            AbilityLogger.Log(owner, "DamageAbility", "NO_TARGETS",
+                $"No enemy ball found within AOE radius {AreaOfEffect}");
             return;
+        }
 
         GD.Print($"[ABILITY] {owner.Name} DamageAbility triggers on-stop AOE for {enemies.Count} targets.");
 
@@ -82,7 +89,11 @@ public sealed class DamageAbility : IBallAbility
     private void ApplyDamage(PoolBall owner, PoolBall target, int damage, bool pierce)
     {
         if (!target.HasMeta("health"))
+        {
+            AbilityLogger.Log(owner, "DamageAbility", "SKIPPED",
+                $"Target: {target.Name}, Reason: missing health metadata");
             return;
+        }
 
         if (target == owner)
             return;

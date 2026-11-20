@@ -25,6 +25,8 @@ public partial class PoolBall : RigidBody2D
     private bool _hasTriggeredStopAbility = false;
     private bool _stopAbilityArmed = false;
     private bool _stopAbilityHasMoved = false;
+    private double _stopAbilityStopDuration = 0.0;
+    private double _dbgTimer = 0.0; // [STOPDBG] logu için (test bitince silinebilir)
     private bool _hasUsedInvulnerable = false;
     private Label? _abilityLabel;
 
@@ -79,6 +81,7 @@ public partial class PoolBall : RigidBody2D
         _hasTriggeredStopAbility = false;
         _stopAbilityArmed = false;
         _stopAbilityHasMoved = false;
+        _stopAbilityStopDuration = 0.0;
         _hasUsedInvulnerable = false;
         if (BallAbility != null)
         {
@@ -392,6 +395,7 @@ public partial class PoolBall : RigidBody2D
 
         _stopAbilityArmed = true;
         _stopAbilityHasMoved = false;
+        _stopAbilityStopDuration = 0.0;
         AbilityLogger.Log(this, BallAbility.GetType().Name, "ARMED", "Activation: stop; waiting for movement and stop");
     }
 
@@ -401,16 +405,37 @@ public partial class PoolBall : RigidBody2D
             _hasTriggeredStopAbility || !_stopAbilityArmed)
             return;
 
+        // [STOPDBG] Test bitince bu blok silinebilir.
+        _dbgTimer += delta;
+        if (_dbgTimer >= 1.0)
+        {
+            _dbgTimer = 0.0;
+            GD.Print($"[STOPDBG] {Name} v={LinearVelocity.Length():F2} w={Mathf.Abs(AngularVelocity):F3} sleeping={Sleeping} moved={_stopAbilityHasMoved} still={_stopAbilityStopDuration:F2}");
+        }
+
         // Önce hareket görülmeli; yeni oluşturulmuş ve hiç oynatılmamış toplar tetiklenmez.
-        bool hasMeaningfulMotion = LinearVelocity.Length() >= 1.0f || Mathf.Abs(AngularVelocity) >= 0.05f;
+        // Eşikler Server.AnyBallMoving() ile aynı tutulur.
+        // Uyuyan top (Sleeping) durmuş sayılır: Godot uyurken hızı sıfırlamayabilir (1-2 px/sn'de donabilir).
+        bool hasMeaningfulMotion = !Sleeping &&
+            (LinearVelocity.Length() > 1.0f || Mathf.Abs(AngularVelocity) > 0.05f);
         if (hasMeaningfulMotion)
         {
             _stopAbilityHasMoved = true;
+            _stopAbilityStopDuration = 0.0;
             return;
         }
 
-        if (!_stopAbilityHasMoved || !Sleeping)
+        if (!_stopAbilityHasMoved)
             return;
+
+        // Sleeping bayrağına güvenme: Sunucu düşük hızı zaten durma kabul ediyor.
+        // Kısa bir süre eşik altında kalması, çarpışma anındaki geçici yavaşlamayı filtreler.
+        _stopAbilityStopDuration += delta;
+        if (_stopAbilityStopDuration < 0.35)
+            return;
+
+        AbilityLogger.Log(this, BallAbility.GetType().Name, "STOP_CONFIRMED",
+            $"LinearSpeed: {LinearVelocity.Length():F2}; AngularSpeed: {Mathf.Abs(AngularVelocity):F3}; Sleeping: {Sleeping}");
 
         var clientNode = GetTree().Root.FindChild("Client", true, false) as Node;
 
