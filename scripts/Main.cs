@@ -8,7 +8,6 @@ public partial class Main : Node
 {
     [Export] public PackedScene ballScene;
     [Export] public PackedScene runeScene; // YENİ
-    public List<Texture2D> ball_images = new List<Texture2D>();
     public List<Texture2D> rune_images = new List<Texture2D>(); // YENİ
     private RandomNumberGenerator rng = new RandomNumberGenerator();
     private Rect2 playArea = new Rect2(180, 90, 960, 550);
@@ -141,14 +140,6 @@ public partial class Main : Node
     }
     public void load_images()
     {
-        ball_images.Clear();
-        for (int i = 1; i <= 20; i++) // API'deki templateId'leri desteklemek için menzili genişlettim
-        {
-            string path = $"res://assets/Maingame/ball_{i}.png";
-            if (FileAccess.FileExists(path))
-                ball_images.Add(GD.Load<Texture2D>(path));
-        }
-
         rune_images.Clear();
         Dictionary<int, string> RuneMap = new Dictionary<int, string> {
             {0, "health"}, {1, "lighting"}, {2, "trap"},
